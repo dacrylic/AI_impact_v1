@@ -15,8 +15,8 @@ MODEL_LABEL_COLUMN = "model_label"
 # LABEL_COLUMN is the only label column modeling code should use.
 LABEL_COLUMN = MODEL_LABEL_COLUMN
 SCORE_COLUMN = "ai_impact_score"
-MODEL_LABEL_ORDER = ["E0", "E3", "E12"]
-RAW_TO_MODEL_LABEL = {"E0": "E0", "E3": "E3", "E2": "E12", "E1": "E12"}
+MODEL_LABEL_ORDER = ["E0", "E1", "E23"]
+RAW_TO_MODEL_LABEL = {"E0": "E0", "E1": "E1", "E2": "E23", "E3": "E23"}
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,7 @@ def load_workbook_frame(path: str | Path) -> pd.DataFrame:
 
 
 def infer_label_order(frame: pd.DataFrame) -> Tuple[List[str], Dict[str, float]]:
-    # E12 deliberately has no pseudo-continuous score. The source score remains
+    # E23 deliberately has no single pseudo-continuous score. The source score remains
     # available as an audit column, but it is not a modeling target or feature.
     return MODEL_LABEL_ORDER.copy(), {}
 

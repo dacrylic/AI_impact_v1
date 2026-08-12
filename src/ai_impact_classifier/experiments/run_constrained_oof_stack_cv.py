@@ -110,7 +110,7 @@ def main() -> None:
     pd.DataFrame(matrix, index=NAMES, columns=NAMES).to_csv(out / "oof_confusion_matrix.csv")
     payload = {
         "method": "nested group-stratified 5-fold cross-validation",
-        "target_definition": "E0 vs E3 vs E12",
+        "target_definition": "E0 vs E1 vs E23 (E23 merges raw E2 and E3)",
         "allowed_input_columns": ["keytask_content", "jobrole_title"],
         "outer_split": "StratifiedGroupKFold(n_splits=5) grouped by jobrole_id",
         "inner_selection": "group-stratified fold within each outer-development partition",

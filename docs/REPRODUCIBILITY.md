@@ -10,12 +10,12 @@ source .venv/bin/activate
 python -m pip install -e .
 ```
 
-The champion requires only CPU packages. No CUDA, MPS, Torch, or embedding
+The baseline requires only CPU packages. No CUDA, MPS, Torch, or embedding
 model is required.
 
 ## Split Strategy
 
-The champion uses nested group-stratified cross-validation.
+The baseline uses nested group-stratified cross-validation.
 
 - Outer loop: five `StratifiedGroupKFold` folds, grouped by `jobrole_id`.
 - Inner loop: a group-stratified held-out fold from each outer development
@@ -31,11 +31,11 @@ of a fold, and every row receives one outer-fold prediction.
 Hard exclusion applies to `jobrole_id`: a shared role across partitions is a
 failure. Other identifiers and exact duplicate task strings are audit warnings
 because the same task can legitimately appear under distinct roles. The
-champion does not use those identifiers as features.
+baseline does not use those identifiers as features.
 
 ## Output Files
 
-The champion command writes:
+The baseline command writes:
 
 - `fold_metrics.csv`: per-fold nested-CV scores and selected meta settings.
 - `oof_predictions.csv`: one outer-fold prediction per input row.

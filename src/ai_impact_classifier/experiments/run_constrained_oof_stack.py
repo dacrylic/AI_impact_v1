@@ -22,7 +22,7 @@ from ai_impact_classifier.experiments.run_merged_e12_specialists import _allowed
 from ai_impact_classifier.splitters import stratified_group_train_val_test_split
 
 
-NAMES = ["E0", "E3", "E12"]
+NAMES = ["E0", "E1", "E23"]
 SOFT_ID_COLUMNS = ["task_id", "jobrole_task_id", "ssoc_code"]
 
 
