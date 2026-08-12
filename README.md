@@ -61,6 +61,10 @@ The Streamlit app supports a single task and a CSV batch with a required
 `keytask_content` column and optional `jobrole_title` column. It uses the same
 production artifact as the API.
 
+For Streamlit Community Cloud, deploy `streamlit_app.py` from the repository
+root. `requirements.txt` installs the local package and all runtime libraries;
+Docker is not required.
+
 ## Input Contract
 
 Model features may use only `keytask_content` and `jobrole_title`.
