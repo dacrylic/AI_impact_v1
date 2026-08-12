@@ -17,6 +17,33 @@ def _overlap(a: pd.Series, b: pd.Series) -> int:
     return int(len(set(a.dropna().astype(str)) & set(b.dropna().astype(str))))
 
 
+def normalized_text(values: pd.Series) -> pd.Series:
+    """Canonicalize exact text for split-leakage checks."""
+    return values.fillna("").astype(str).str.casefold().str.replace(r"\s+", " ", regex=True).str.strip()
+
+
+def check_role_task_split_leakage(
+    frame: pd.DataFrame,
+    split_assignments: Dict[str, pd.Index],
+    role_column: str,
+    task_column: str,
+) -> LeakageReport:
+    """Fail if any role or normalized task occurs in more than one split."""
+    messages: List[str] = []
+    splits = list(split_assignments.items())
+    for index, (name_a, idx_a) in enumerate(splits):
+        for name_b, idx_b in splits[index + 1 :]:
+            a = frame.loc[idx_a]
+            b = frame.loc[idx_b]
+            role_overlap = _overlap(a[role_column], b[role_column])
+            if role_overlap:
+                messages.append(f"role leakage between {name_a} and {name_b}: {role_overlap}")
+            task_overlap = _overlap(normalized_text(a[task_column]), normalized_text(b[task_column]))
+            if task_overlap:
+                messages.append(f"normalized task leakage between {name_a} and {name_b}: {task_overlap}")
+    return LeakageReport(passed=not messages, messages=messages, warnings=[])
+
+
 def check_split_leakage(
     frame: pd.DataFrame,
     split_assignments: Dict[str, pd.Index],
