@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import joblib
 import pandas as pd
 import streamlit as st
 
+# Community Cloud executes this file from a repository checkout. Add the
+# colocated package directly so the demo does not require an editable install.
+REPOSITORY_ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(REPOSITORY_ROOT / "src"))
+
 from ai_impact_classifier.production import predict_with_review_flags
 
 
-MODEL_PATH = Path("models/e0_e1_e23_sparse_svc.joblib")
+MODEL_PATH = REPOSITORY_ROOT / "models" / "e0_e1_e23_sparse_svc.joblib"
 REQUIRED_BATCH_COLUMN = "keytask_content"
 
 

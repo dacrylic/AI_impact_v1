@@ -62,8 +62,8 @@ The Streamlit app supports a single task and a CSV batch with a required
 production artifact as the API.
 
 For Streamlit Community Cloud, deploy `streamlit_app.py` from the repository
-root. `requirements.txt` installs the local package and all runtime libraries;
-Docker is not required.
+root. `requirements.txt` installs the small runtime dependency set; Docker is
+not required.
 
 ## Input Contract
 
