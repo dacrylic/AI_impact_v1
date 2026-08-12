@@ -37,6 +37,30 @@ The command writes fold metrics, one held-out prediction per row, and run metada
 The same sparse model can emit `needs_review` for low-margin and low-coverage
 inputs without a second inference model. See the [production output schema](docs/PRODUCTION_OUTPUT_SCHEMA.md).
 
+## Run The API
+
+Train and package the single production artifact from the source workbook:
+
+```bash
+ai-impact-train-production --input "/path/to/task_ai_impact_details.xlsx"
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+The API exposes `GET /health` and `POST /v1/predict`. The latter accepts
+`keytask_content`, optional `jobrole_title`, and optional `include_diagnostics`.
+Its compact default response is the predicted label plus `review_level`,
+`review_score`, and `needs_review`.
+
+## Run The Demo
+
+```bash
+streamlit run streamlit_app.py
+```
+
+The Streamlit app supports a single task and a CSV batch with a required
+`keytask_content` column and optional `jobrole_title` column. It uses the same
+production artifact as the API.
+
 ## Input Contract
 
 Model features may use only `keytask_content` and `jobrole_title`.

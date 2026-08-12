@@ -4,9 +4,11 @@ The production classifier is a single TF-IDF plus `LinearSVC` model. It always r
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "predicted_label": "E23",
   "needs_review": true,
+  "review_level": "high",
+  "review_score": 0.91,
   "review_reasons": ["low_decision_margin", "low_word_coverage"],
   "decision_margin": 0.18,
   "class_decision_scores": {"E0": -0.77, "E1": 0.06, "E23": 0.24},
@@ -30,7 +32,9 @@ The production classifier is a single TF-IDF plus `LinearSVC` model. It always r
 | Field | Meaning |
 | --- | --- |
 | `predicted_label` | The model's forced best class: `E0`, `E1`, or `E23`. |
-| `needs_review` | `true` when one or more review conditions is met. |
+| `review_level` | `low`, `medium`, or `high`. `high` is the action threshold for human review. |
+| `review_score` | Operational review risk from 0 to 1, derived from out-of-fold rarity of margin and vocabulary-coverage signals. It is not a class probability. |
+| `needs_review` | Convenience boolean: `true` only when `review_level` is `high`. |
 | `review_reasons` | Machine-readable reasons. Empty for accepted predictions. |
 | `decision_margin` | Difference between the top and second-highest raw `LinearSVC` decision scores. It is not a probability. |
 | `class_decision_scores` | Raw, uncalibrated decision scores for observability and later calibration. |
@@ -45,4 +49,19 @@ The production classifier is a single TF-IDF plus `LinearSVC` model. It always r
 - `low_char_coverage`: few learned character n-grams matched; strongest single signal of unfamiliar writing or terminology.
 - `low_total_feature_coverage`: little sparse evidence overall.
 
-Thresholds must be fitted on out-of-fold predictions and feature-coverage distributions, then frozen for deployment. They should target an agreed review capacity such as the riskiest 5% or 10% of incoming tasks; they are not training-set thresholds.
+Thresholds and score reference distributions are fitted on out-of-fold predictions, then frozen for deployment. The default `high` threshold targets roughly the riskiest 10% of familiar tasks, plus unfamiliar-writing/OOV cases. They are not training-set thresholds.
+
+## Minimal API Contract
+
+The public API returns only the fields a downstream decision flow needs:
+
+```json
+{
+  "predicted_label": "E23",
+  "review_level": "high",
+  "review_score": 0.91,
+  "needs_review": true
+}
+```
+
+Set `include_diagnostics=true` for margins, vocabulary coverage, and review reasons. These fields are useful for debugging and monitoring, but should not be mistaken for calibrated probabilities.
