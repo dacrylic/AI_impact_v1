@@ -38,6 +38,7 @@ ai-impact-e3-audit = "ai_impact_classifier.experiments.make_e3_audit:main"
 ai-impact-cpu-aux-retrieval-cv = "ai_impact_classifier.experiments.run_cpu_aux_retrieval_oof_cv:main"
 ai-impact-train-production = "ai_impact_classifier.train_production_bundle:main"
 ai-impact-task-deduplicated-cv = "ai_impact_classifier.experiments.run_task_deduplicated_cv:main"
+ai-impact-role-task-disjoint-cv = "ai_impact_classifier.experiments.run_role_task_disjoint_cv:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
