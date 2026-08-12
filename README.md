@@ -32,6 +32,11 @@ python -m ai_impact_classifier.experiments.run_constrained_oof_stack_cv \
 
 The command writes fold metrics, one held-out prediction per row, and run metadata. See [reproducibility notes](docs/REPRODUCIBILITY.md) for the split and leakage contract.
 
+## Production Review Flags
+
+The same sparse model can emit `needs_review` for low-margin and low-coverage
+inputs without a second inference model. See the [production output schema](docs/PRODUCTION_OUTPUT_SCHEMA.md).
+
 ## Input Contract
 
 Model features may use only `keytask_content` and `jobrole_title`.
