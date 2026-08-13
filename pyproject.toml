@@ -40,6 +40,7 @@ ai-impact-train-production = "ai_impact_classifier.train_production_bundle:main"
 ai-impact-task-deduplicated-cv = "ai_impact_classifier.experiments.run_task_deduplicated_cv:main"
 ai-impact-role-task-disjoint-cv = "ai_impact_classifier.experiments.run_role_task_disjoint_cv:main"
 ai-impact-role-task-disjoint-holdout = "ai_impact_classifier.experiments.run_role_task_disjoint_holdout:main"
+ai-impact-task-deduplicated-transformer-cv = "ai_impact_classifier.experiments.run_task_deduplicated_transformer_cv:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
