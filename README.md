@@ -13,6 +13,10 @@ The official target is `E0`, `E1`, and `E23`, where `E23` merges source `E2` and
 
 Read [the model card](docs/MODEL_CARD.md) before treating the benchmark as a deployment result.
 
+Read [the historical experiment record](docs/HISTORICAL_EXPERIMENTS.md) for
+the old-target methods screened, rejected leakage paths, and the rationale for
+selecting the CPU-first stack.
+
 ## Installation
 
 ```bash
