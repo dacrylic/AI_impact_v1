@@ -17,6 +17,10 @@ Read [the historical experiment record](docs/HISTORICAL_EXPERIMENTS.md) for
 the old-target methods screened, rejected leakage paths, and the rationale for
 selecting the CPU-first stack.
 
+The current new-target work is documented separately in
+[the new-target data contract](docs/NEW_TARGET_DATA_CONTRACT.md) and
+[the initial results](docs/NEW_TARGET_INITIAL_RESULTS.md).
+
 ## Installation
 
 ```bash
