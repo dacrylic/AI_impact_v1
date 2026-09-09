@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ai-impact-classifier"
 version = "0.1.0"
-description = "CPU-first LLM-label distillation for AI impact classification"
+description = "CPU-first LLM-label distillation and serving for AI impact classification"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -19,9 +19,17 @@ dependencies = [
 
 [project.optional-dependencies]
 api = [
-  "fastapi>=0.110",
+  "fastapi>=0.115,<1",
   "streamlit>=1.35",
-  "uvicorn[standard]>=0.27",
+  "uvicorn[standard]>=0.30,<1",
+]
+dev = [
+  "httpx>=0.27,<1",
+  "pytest>=8,<9",
+]
+sagemaker = [
+  "sagemaker>=2.220,<3",
+  "sagemaker-inference>=1.10,<2",
 ]
 embeddings = [
   "sentence-transformers>=2.7",
@@ -36,11 +44,15 @@ embeddings = [
 ai-impact-constrained-cv = "ai_impact_classifier.experiments.run_constrained_oof_stack_cv:main"
 ai-impact-e3-audit = "ai_impact_classifier.experiments.make_e3_audit:main"
 ai-impact-cpu-aux-retrieval-cv = "ai_impact_classifier.experiments.run_cpu_aux_retrieval_oof_cv:main"
-ai-impact-train-production = "ai_impact_classifier.train_production_bundle:main"
+ai-impact-train-production = "ai_impact_classifier.production.train:main"
 ai-impact-task-deduplicated-cv = "ai_impact_classifier.experiments.run_task_deduplicated_cv:main"
 ai-impact-role-task-disjoint-cv = "ai_impact_classifier.experiments.run_role_task_disjoint_cv:main"
 ai-impact-role-task-disjoint-holdout = "ai_impact_classifier.experiments.run_role_task_disjoint_holdout:main"
 ai-impact-task-deduplicated-transformer-cv = "ai_impact_classifier.experiments.run_task_deduplicated_transformer_cv:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

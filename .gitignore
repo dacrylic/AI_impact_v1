@@ -10,4 +10,5 @@ dist/
 results/
 artifacts/
 cache/
+.tmp*/
 .DS_Store

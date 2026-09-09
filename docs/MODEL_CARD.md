@@ -1,49 +1,82 @@
-# CPU Classification Baseline Model Card
+# GPT-5.2 Current-Guidance Model Card
 
 ## Purpose
 
-This CPU-first student approximates validated LLM labels. It predicts `E0`, `E1`, and `E23`, where `E23` combines the original teacher labels `E2` and `E3`.
+This CPU-only classifier distils the approved current POC AI-impact scoring
+policy into `E0`, `E1`, and `E23`. `E23` is the operational merge of the
+source `E2` and `E3` labels. It is a proxy for the approved LLM policy, not
+independently adjudicated ground truth about AI impact.
 
-It is a distillation model, not an independently validated measure of real-world AI impact. The originating LLM rubric and prompt are not available in this repository.
+## Inputs
 
-## Inputs And Exclusions
+Primary API input:
 
-Required input: `keytask_content`.
+- `action` and `object`, with optional `purpose`.
 
-Optional input used by the baseline: `jobrole_title`.
+The API joins those supplied AOP fields into the same normalized atomic task
+form used in training; it does not infer the fields from prose.
 
-Excluded from all model features: IDs, occupation and sector titles/codes, `ai_impact_score`, categories, and source labels. `openai_label` is used only as the supervised training target.
+Compatibility and optional context:
+
+- `keytaskContent`: an already-composed normalized task, accepted instead of
+  action/object for upstreams that already provide it.
+- `jobroleTitle`
+
+The model never uses identifiers, sector, source labels, scores, bands, or
+LLM rationale columns as inference features. When optional AOP fields are not
+available, the API supplies blank values.
 
 ## Method
 
-[`run_constrained_oof_stack_cv.py`](../src/ai_impact_classifier/experiments/run_constrained_oof_stack_cv.py) cross-fits four word/character TF-IDF `LinearSVC` classifiers over task-only and title-plus-task views. A regularized multinomial logistic-regression meta-model combines their held-out scores.
+One CPU sparse `LinearSVC` consumes a concatenation of field-aware TF-IDF
+blocks: task word n-grams, two task character n-gram views, title word n-grams,
+individual action/object/purpose word n-grams, and an action-object lexical
+cross. This preserves the practical benefits of the decomposed task format
+without an embedding runtime, GPU requirement, or second model.
 
 ## Evaluation
 
-Nested five-fold `StratifiedGroupKFold` groups on `jobrole_id`. Each role is held out of its outer evaluation fold and inner model selection.
+The release training command exact-deduplicates complete model inputs before
+splitting. It removes label-conflicting identical inputs rather than choosing
+an arbitrary target, retains one deterministic representative of same-label
+duplicates, then applies a role-grouped split.
 
-Aggregate out-of-fold results across 36,904 rows:
-
-| Metric | Value |
+| Check | Result |
 | --- | ---: |
-| Accuracy | 0.8938 |
-| Macro F1 | 0.8056 |
-| Weighted F1 | 0.8929 |
+| Source rows | 77,469 |
+| Full-input duplicates collapsed | 1,160 |
+| Conflicting full inputs excluded | 0 |
+| Training rows | 48,288 |
+| Validation rows | 12,611 |
+| Sealed test rows | 15,410 |
+| Shared role IDs across splits | 0 |
+| Shared complete inputs across splits | 0 |
+| Sealed test accuracy | 0.8244 |
+| Sealed test macro F1 | 0.8183 |
+| Sealed test weighted F1 | 0.8236 |
+
+Sealed-test class metrics:
 
 | Class | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| E0 | 0.9363 | 0.9479 | 0.9421 | 28,009 |
-| E1 | 0.7575 | 0.7100 | 0.7330 | 3,924 |
-| E23 | 0.7496 | 0.7343 | 0.7419 | 4,971 |
+| E0 | 0.8614 | 0.8445 | 0.8528 | 4,166 |
+| E1 | 0.7904 | 0.7316 | 0.7599 | 4,027 |
+| E23 | 0.8212 | 0.8646 | 0.8423 | 7,217 |
 
-Fold macro F1 values: 0.8057, 0.8012, 0.8022, 0.8155, and 0.8024.
+The generated `training_report.json` contains the confusion matrix, source
+data SHA-256, artifact SHA-256, split seed, and complete fixed feature recipe.
+The binary artifact is intentionally not committed to Git; promote it through
+the release process described in the deployment guide.
 
-## Limitations
+## Intended Use And Limits
 
-- E1 and E23 are less frequent than E0 and are the limiting classes.
-- Repeated task text can receive different labels across distinct job roles.
-- This is the baseline for the corrected target, not a final selected champion.
+Use this model for real-time task-level scoring with its review signal. Review
+is especially appropriate for low-margin, low-lexical-coverage, or very short
+tasks. The signal is a triage measure, not a calibrated probability of
+correctness.
 
-## Intended Use
-
-Use the model for batch triage or as a CPU-only proxy for the validated LLM labels. Do not use it as the sole basis for high-stakes employment or policy decisions without a separately documented rubric and human review process.
+The held-out test measures generalization to unseen job roles in the approved
+SFW-derived dataset. It does not establish performance on new sectors,
+languages, task extraction errors, or semantic concepts absent from the source
+corpus. Monitor review-score distributions and collect adjudicated production examples for
+future retraining.

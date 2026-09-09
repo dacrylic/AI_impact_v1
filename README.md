@@ -1,84 +1,111 @@
 # AI Impact Classifier
 
-CPU-first knowledge-distillation experiments for reproducing validated LLM AI-impact labels from job-role title and task text.
+CPU-first ML distillation of the approved AI-impact scoring policy:
 
-## Current Classification Baseline
+- **LLM policy:** GPT-5.2 with the approved current POC guidance.
+- **Task input:** AOP is the primary API contract. Send `action`, `object`, and optional `purpose`; the API deterministically joins them into the same canonical task field used in training. It does not decompose prose.
+- **Production target:** `E0`, `E1`, and `E23`, where source `E2` and `E3` are merged into `E23`.
+- **Primary serving route:** FastAPI on Heroku.
+- **Enterprise route:** a separate SageMaker endpoint deployment path using the same artifact.
 
-The official target is `E0`, `E1`, and `E23`, where `E23` merges source `E2` and `E3`.
+This repository deliberately separates production code from data-science
+evidence. Read [the experiments index](docs/EXPERIMENTS.md) for the evidence
+behind the selected policy.
 
-- Aggregate out-of-fold macro F1: **0.8056**.
-- Inputs: `keytask_content` is required; `jobrole_title` is optional and used by the baseline.
-- Evaluation: nested five-fold `StratifiedGroupKFold`, grouped by `jobrole_id`.
-- Runtime: CPU-only; no GPU, embedding model, or Torch dependency is required.
+## Repository layout
 
-Read [the model card](docs/MODEL_CARD.md) before treating the benchmark as a deployment result.
+| Location | Purpose |
+| --- | --- |
+| `src/ai_impact_classifier/production/` | Approved target contract, training and artifact-backed inference. |
+| `src/ai_impact_classifier/api.py` | FastAPI application and camelCase public schema. |
+| `deployment/heroku/` | Primary web API deployment instructions. |
+| `deployment/sagemaker/` | Separate enterprise endpoint deployment path. |
+| `research/factorial-study/` | Curated factorial-study documentation and approved presentation. |
+| `src/ai_impact_classifier/experiments/` | Historical/reproducible experimentation scripts. Not serving code. |
+| `artifacts/` | Local or release-managed model artifacts. Ignored from Git. |
 
-Read [the historical experiment record](docs/HISTORICAL_EXPERIMENTS.md) for
-the old-target methods screened, rejected leakage paths, and the rationale for
-selecting the CPU-first stack.
-
-## Installation
+## Local setup
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e .
+python -m pip install -e '.[api,dev]'
 ```
 
-## Reproduce The Baseline
+## Train the approved release candidate
+
+The source file must contain the approved GPT-5.2/current-guidance labels and
+the fields `jobrole_id`, `jobrole_title`, `task`, `action`, `object`,
+`purpose`, and `label`.
 
 ```bash
-python -m ai_impact_classifier.experiments.run_constrained_oof_stack_cv \
-  --input "/path/to/task_ai_impact_details.xlsx" \
-  --output-dir results/e0_e1_e23_constrained_oof_stack_cv5
+ai-impact-train-production \
+  --input "/path/to/tasks_reasoning_scores 2.csv" \
+  --output-dir artifacts/releases/gpt52-current-field-aware-v1 \
+  --refit-full
 ```
 
-The command writes fold metrics, one held-out prediction per row, and run metadata. See [reproducibility notes](docs/REPRODUCIBILITY.md) for the split and leakage contract.
+The command first creates a strict, role-grouped train/validation/sealed-test
+split. Exact duplicate full model inputs are collapsed only when their target
+is unanimous; contradictory duplicates are excluded rather than assigned an
+arbitrary label. The selected model is evaluated on the sealed test, then
+refit on all remaining approved rows only when `--refit-full` is supplied.
 
-## Production Review Flags
+Review `training_report.json` before promoting `model.joblib` to
+`artifacts/current/model.joblib` or publishing it to an approved artifact
+store.
 
-The same sparse model can emit `needs_review` for low-margin and low-coverage
-inputs without a second inference model. See the [production output schema](docs/PRODUCTION_OUTPUT_SCHEMA.md).
-
-## Run The API
-
-Train and package the single production artifact from the source workbook:
+## Run the API
 
 ```bash
-ai-impact-train-production --input "/path/to/task_ai_impact_details.xlsx"
-uvicorn api:app --host 0.0.0.0 --port 8000
+export AI_IMPACT_MODEL_PATH=artifacts/releases/gpt52-current-field-aware-v1/model.joblib
+uvicorn ai_impact_classifier.api:app --reload
 ```
 
-The API exposes `GET /health` and `POST /v1/predict`. The latter accepts
-`keytask_content`, optional `jobrole_title`, and optional `include_diagnostics`.
-Its compact default response is the predicted label plus `review_level`,
-`review_score`, and `needs_review`.
-
-## Run The Demo
+Open `http://127.0.0.1:8000/docs` for Swagger UI.
 
 ```bash
-streamlit run streamlit_app.py
+curl -X POST http://127.0.0.1:8000/v1/predict \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "action": "prepare",
+    "object": "monthly operational performance report",
+    "purpose": "support management review",
+    "jobroleTitle": "Operations Analyst",
+  }'
 ```
 
-The Streamlit app supports a single task and a CSV batch with a required
-`keytask_content` column and optional `jobrole_title` column. It uses the same
-production artifact as the API.
+The response is intentionally one stable schema:
 
-For Streamlit Community Cloud, deploy `streamlit_app.py` from the repository
-root. `requirements.txt` installs the small runtime dependency set; Docker is
-not required.
-
-## Input Contract
-
-Model features may use only `keytask_content` and `jobrole_title`.
-
-IDs, occupation and sector columns, scores, categories, and source labels are never model inputs. The raw `openai_label` is used only as a supervised training target and is unavailable at inference.
-
-## Supported Commands
-
-```bash
-ai-impact-constrained-cv --input /path/to/workbook.xlsx
+```json
+{
+  "predictedLabel": "E1",
+  "reviewScore": 0.31,
+  "modelVersion": "gpt52-current-guidance-e0-e1-e23-v1"
+}
 ```
 
-Other files under `src/ai_impact_classifier/experiments/` are retained as historical experiments. They may not support the current E0/E1/E23 target.
+`action` plus `object` are sufficient for the primary AOP route; `purpose` is
+optional. `keytaskContent` is accepted as a compatibility alternative when
+the upstream extractor already emits the composed task. The API never extracts
+or infers A/O/P from prose.
+
+`reviewScore` runs from `0` (little automatic review indicated) to `1`
+(stronger review indicated). It combines classifier decision ambiguity,
+lexical coverage and unusually short task text. It is an operational routing
+signal, not a calibrated probability that the label is correct.
+
+## Deployment
+
+- [Heroku deployment](deployment/heroku/README.md)
+- [SageMaker deployment](deployment/sagemaker/README.md)
+- [Release and API guidance](docs/DEPLOYMENT.md)
+
+## Guardrails
+
+The model approximates an approved LLM scoring policy. It is not an
+independently adjudicated measure of real-world AI impact. Do not send source
+labels, scores, reasoning text, or identifiers to the prediction API. Monitor
+novel language, review volume, class mix, and sampled disagreements after
+release.

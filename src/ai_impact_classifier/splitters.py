@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, Hashable, Iterable, List, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -14,16 +14,16 @@ class SplitBundle:
     test_idx: pd.Index
 
 
-def _class_columns(frame: pd.DataFrame, label_column: str) -> List[int]:
+def _class_columns(frame: pd.DataFrame, label_column: str) -> List[Hashable]:
     classes = sorted(frame[label_column].dropna().unique().tolist())
-    return [int(c) for c in classes]
+    return list(classes)
 
 
 def _group_table(
     frame: pd.DataFrame,
     group_column: str,
     label_column: str,
-    classes: Sequence[int],
+    classes: Sequence[Hashable],
 ) -> pd.DataFrame:
     group_rows = []
     for group_value, group_frame in frame.groupby(group_column, sort=False):
