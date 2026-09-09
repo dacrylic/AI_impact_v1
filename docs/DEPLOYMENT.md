@@ -64,7 +64,9 @@ change the live distribution.
 
 ## Deployment boundaries
 
-Heroku is the primary serving route and uses the root `Procfile`. SageMaker is
-a separate deployment path that packages the same `model.joblib` into a
-versioned S3 model archive. Do not retrain models differently for the two
-platforms; deployment differences must not create label-policy drift.
+Heroku is the primary serving route and uses the root `Procfile` for
+platform-managed process startup; the controlled Docker-image release path is
+described in [`deployment/heroku/README.md`](../deployment/heroku/README.md).
+SageMaker is a separate deployment path that packages the same `model.joblib`
+into a versioned S3 model archive. Do not retrain models differently for the
+two platforms; deployment differences must not create label-policy drift.

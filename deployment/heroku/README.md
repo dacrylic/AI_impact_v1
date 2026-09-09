@@ -29,9 +29,39 @@ deploying an API with no model binary:
 ```bash
 heroku create <app-name>
 cp artifacts/releases/gpt52-current-field-aware-v1/model.joblib artifacts/current/model.joblib
+heroku stack:set container --app <app-name>
+heroku container:release web --app <app-name>
+```
+
+On an Intel/Linux machine, publish the image with Heroku's standard command
+before the release step:
+
+```bash
 heroku container:login
 heroku container:push web --app <app-name>
+```
+
+On an Apple Silicon Mac, Heroku's registry requires an `linux/amd64` Docker
+V2 Schema 2 manifest. Docker Desktop commonly publishes an OCI manifest, which
+the registry rejects. Build the image once using the legacy builder, then use
+`skopeo` to publish a compatible manifest:
+
+```bash
+brew install skopeo
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+export IMAGE="registry.heroku.com/<app-name>/web:latest"
+DOCKER_BUILDKIT=0 docker build --platform linux/amd64 -t "$IMAGE" .
+TOKEN=$(heroku auth:token)
+skopeo copy --format v2s2 --dest-creds "_:$TOKEN" \
+  "docker-daemon:$IMAGE" "docker://$IMAGE"
 heroku container:release web --app <app-name>
+```
+
+Then start one always-on Basic dyno and verify the live service:
+
+```bash
+heroku ps:scale web=1:Basic --app <app-name>
+curl -fsS https://<app-name>.herokuapp.com/readyz
 ```
 
 After deployment, call `/readyz` before directing traffic to the service. The
@@ -48,7 +78,7 @@ memory usage: each worker loads a copy of the sparse model artifact. Use
 | Variable | Purpose |
 | --- | --- |
 | `AI_IMPACT_MODEL_PATH` | Optional artifact location; default is `artifacts/current/model.joblib`. |
-| `WEB_CONCURRENCY` | Optional worker count. Start with `1` for a memory-constrained dyno. |
+| `WEB_CONCURRENCY` | Reserved for a future multi-worker release; the current image intentionally starts one worker. |
 
 Heroku is the primary consumption route. It should receive task content and,
 when available, title plus AOP context; do not send teacher labels, scores,
