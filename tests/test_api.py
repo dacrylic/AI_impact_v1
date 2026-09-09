@@ -63,6 +63,21 @@ def test_rejects_unknown_fields(monkeypatch, tmp_path):
     assert response.status_code == 422
 
 
+def test_rejects_nonfinite_json_values_without_server_error(monkeypatch, tmp_path):
+    artifact = tmp_path / "model.joblib"
+    _artifact(artifact)
+    monkeypatch.setenv("AI_IMPACT_MODEL_PATH", str(artifact))
+    from ai_impact_classifier.api import app, get_predictor
+
+    get_predictor.cache_clear()
+    response = TestClient(app).post(
+        "/v1/predict",
+        content=b'{"keytaskContent":"Write a report","purpose":NaN}',
+        headers={"content-type": "application/json"},
+    )
+    assert response.status_code == 422
+
+
 def test_accepts_aop_without_precomposed_task(monkeypatch, tmp_path):
     artifact = tmp_path / "model.joblib"
     _artifact(artifact)

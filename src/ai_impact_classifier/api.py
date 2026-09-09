@@ -3,10 +3,13 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
+from math import isfinite
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from .production.contracts import compose_task_from_aop
@@ -90,6 +93,22 @@ app = FastAPI(
     version="1.0.0",
     description="CPU-only classifier for upstream-normalized atomic AOP tasks; it never decomposes raw prose.",
 )
+
+
+def _json_safe(value: object) -> object:
+    """Make validation errors safe when a non-standard JSON NaN is received."""
+    if isinstance(value, float) and not isfinite(value):
+        return None
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    return value
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_error_handler(_: Request, error: RequestValidationError) -> JSONResponse:
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": _json_safe(error.errors())})
 
 
 @app.get("/healthz")
