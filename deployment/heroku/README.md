@@ -10,7 +10,9 @@ It uses the exact same `model.joblib` artifact as local and SageMaker serving.
    ```bash
    ai-impact-train-production \
      --input "/path/to/tasks_reasoning_scores 2.csv" \
-     --output-dir artifacts/releases/gpt52-current-field-aware-v1 \
+     --output-dir artifacts/releases/gpt52-current-basic-v2 \
+     --feature-profile basic \
+     --model-version gpt52-current-guidance-e0-e1-e23-basic-v2 \
      --refit-full
    ```
 
@@ -28,7 +30,7 @@ deploying an API with no model binary:
 
 ```bash
 heroku create <app-name>
-cp artifacts/releases/gpt52-current-field-aware-v1/model.joblib artifacts/current/model.joblib
+cp artifacts/releases/gpt52-current-basic-v2/model.joblib artifacts/current/model.joblib
 heroku stack:set container --app <app-name>
 heroku container:release web --app <app-name>
 ```
@@ -64,6 +66,13 @@ heroku ps:scale web=1:Basic --app <app-name>
 curl -fsS https://<app-name>.herokuapp.com/readyz
 ```
 
+Set an API key before serving traffic. The key is not stored in Git or in the
+container image:
+
+```bash
+heroku config:set AI_IMPACT_API_KEY="$(openssl rand -hex 32)" --app <app-name>
+```
+
 After deployment, call `/readyz` before directing traffic to the service. The
 root `Procfile` remains available for a platform-managed artifact mount or a
 separate build-time artifact retrieval process; it is not the default GitHub
@@ -78,6 +87,7 @@ memory usage: each worker loads a copy of the sparse model artifact. Use
 | Variable | Purpose |
 | --- | --- |
 | `AI_IMPACT_MODEL_PATH` | Optional artifact location; default is `artifacts/current/model.joblib`. |
+| `AI_IMPACT_API_KEY` | Required secret for all `/v1/*` endpoints; callers send it as `X-API-Key`. |
 | `WEB_CONCURRENCY` | Reserved for a future multi-worker release; the current image intentionally starts one worker. |
 
 Heroku is the primary consumption route. It should receive task content and,

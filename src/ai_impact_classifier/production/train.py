@@ -15,7 +15,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.svm import LinearSVC
 
 from .contracts import CLASS_ORDER, MODEL_VERSION, SOURCE_TO_TARGET, compose_model_text, normalize_text
-from .features import FieldAwareTfidfFeatures, TEXT_FIELDS
+from .features import FEATURE_PROFILES, FieldAwareTfidfFeatures, TEXT_FIELDS
 
 
 def parse_args() -> argparse.Namespace:
@@ -25,6 +25,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=2026)
     parser.add_argument("--test-fold", type=int, default=2, help="One-based role-held-out outer fold reserved as sealed test.")
     parser.add_argument("--c", type=float, default=0.2, help="Fixed, validation-selected LinearSVC regularization.")
+    parser.add_argument("--feature-profile", choices=sorted(FEATURE_PROFILES), default="champion", help="Serving feature footprint to train.")
+    parser.add_argument("--model-version", default=MODEL_VERSION, help="Model version stored in the release artifact.")
     parser.add_argument("--refit-full", action="store_true", help="Refit selected model on every deduplicated row after sealed evaluation.")
     return parser.parse_args()
 
@@ -103,8 +105,8 @@ def _verify_split(frame: pd.DataFrame, splits: dict[str, np.ndarray]) -> dict[st
     return checks
 
 
-def _fit(train: pd.DataFrame, c_value: float) -> tuple[FieldAwareTfidfFeatures, LinearSVC]:
-    features = FieldAwareTfidfFeatures()
+def _fit(train: pd.DataFrame, c_value: float, feature_profile: str) -> tuple[FieldAwareTfidfFeatures, LinearSVC]:
+    features = FieldAwareTfidfFeatures(profile=feature_profile)
     classifier = LinearSVC(C=c_value, class_weight=None, random_state=42)
     classifier.fit(features.fit_transform(train), train["target_label"])
     return features, classifier
@@ -133,17 +135,17 @@ def main() -> None:
     splits = {"train": train_idx, "validation": validation_idx, "test": test_idx}
     leakage = _verify_split(frame, splits)
     train, validation, test = (frame.iloc[index].reset_index(drop=True) for index in (train_idx, validation_idx, test_idx))
-    features, classifier = _fit(train, args.c)
+    features, classifier = _fit(train, args.c, args.feature_profile)
     validation_metrics, sealed_test_metrics = _evaluate(features, classifier, validation), _evaluate(features, classifier, test)
     sealed_predictions = classifier.predict(features.transform(test))
     if args.refit_full:
-        features, classifier = _fit(frame, args.c)
+        features, classifier = _fit(frame, args.c, args.feature_profile)
         fit_scope, fitted_rows = "full_deduplicated_approved_dataset", len(frame)
     else:
         fit_scope, fitted_rows = "training_partition_only", len(train)
     artifact = {
         "artifact_schema_version": 2,
-        "model_version": MODEL_VERSION,
+        "model_version": args.model_version,
         "label_policy": "GPT-5.2 with approved current POC guidance; source E2 and E3 merged to E23",
         "classes": list(CLASS_ORDER), "features": features, "classifier": classifier,
         "fit_scope": fit_scope, "fitted_rows": fitted_rows,
@@ -151,7 +153,7 @@ def main() -> None:
     artifact_path = output_dir / "model.joblib"
     joblib.dump(artifact, artifact_path, compress=3)
     report = {
-        "model_version": MODEL_VERSION,
+        "model_version": args.model_version,
         "target_definition": artifact["label_policy"],
         "input_columns": list(TEXT_FIELDS),
         "primary_api_input": ["action", "object", "purpose (optional)"],
@@ -160,7 +162,7 @@ def main() -> None:
         "excluded_columns": ["reasoning_key", "truncated_reason", "score", "band", "sector_title", "ssoc_code", "jobrole_id", "cwfkt_id", "label"],
         "preparation": preparation,
         "split": {"seed": args.seed, "test_fold": args.test_fold, "train_rows": len(train), "validation_rows": len(validation), "test_rows": len(test), "strict_leakage_passed": True, "leakage_checks": leakage},
-        "fixed_hyperparameters": {"classifier": "LinearSVC", "c": args.c, "class_weight": None, "feature_recipe": features.weights},
+        "fixed_hyperparameters": {"classifier": "LinearSVC", "c": args.c, "class_weight": None, "feature_profile": args.feature_profile, "feature_recipe": features.weights},
         "validation_metrics": validation_metrics, "sealed_test_metrics": sealed_test_metrics,
         "artifact": {"path": "model.joblib", "sha256": _sha256(artifact_path), "fit_scope": fit_scope, "fitted_rows": fitted_rows},
         "source_data": {"path": str(source_path), "sha256": _sha256(source_path)},

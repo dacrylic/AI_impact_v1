@@ -42,7 +42,9 @@ the fields `jobrole_id`, `jobrole_title`, `task`, `action`, `object`,
 ```bash
 ai-impact-train-production \
   --input "/path/to/tasks_reasoning_scores 2.csv" \
-  --output-dir artifacts/releases/gpt52-current-field-aware-v1 \
+  --output-dir artifacts/releases/gpt52-current-basic-v2 \
+  --feature-profile basic \
+  --model-version gpt52-current-guidance-e0-e1-e23-basic-v2 \
   --refit-full
 ```
 
@@ -59,7 +61,8 @@ store.
 ## Run the API
 
 ```bash
-export AI_IMPACT_MODEL_PATH=artifacts/releases/gpt52-current-field-aware-v1/model.joblib
+export AI_IMPACT_MODEL_PATH=artifacts/releases/gpt52-current-basic-v2/model.joblib
+export AI_IMPACT_API_KEY='choose-a-long-random-secret'
 uvicorn ai_impact_classifier.api:app --reload
 ```
 
@@ -68,11 +71,12 @@ Open `http://127.0.0.1:8000/docs` for Swagger UI.
 ```bash
 curl -X POST http://127.0.0.1:8000/v1/predict \
   -H 'Content-Type: application/json' \
+  -H 'X-API-Key: choose-a-long-random-secret' \
   -d '{
     "action": "prepare",
     "object": "monthly operational performance report",
     "purpose": "support management review",
-    "jobroleTitle": "Operations Analyst",
+    "jobroleTitle": "Operations Analyst"
   }'
 ```
 
@@ -82,7 +86,7 @@ The response is intentionally one stable schema:
 {
   "predictedLabel": "E1",
   "reviewScore": 0.31,
-  "modelVersion": "gpt52-current-guidance-e0-e1-e23-v1"
+  "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
 }
 ```
 
@@ -95,6 +99,11 @@ or infers A/O/P from prose.
 (stronger review indicated). It combines classifier decision ambiguity,
 lexical coverage and unusually short task text. It is an operational routing
 signal, not a calibrated probability that the label is correct.
+
+All `/v1/*` routes require an `X-API-Key` header. Health endpoints remain
+public so the hosting platform can monitor the service. Invalid requests return
+a stable `{"error":{"code":"...","message":"..."}}` response; optional
+text fields must be omitted or sent as JSON `null`, never `NaN` or `Infinity`.
 
 ## Deployment
 

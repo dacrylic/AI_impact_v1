@@ -15,6 +15,33 @@ from .contracts import normalize_text
 TEXT_FIELDS = ("task", "jobrole_title", "action", "object", "purpose")
 
 
+_COMMON_TFIDF = {"dtype": np.float32, "sublinear_tf": True, "strip_accents": "unicode"}
+
+# `basic` retains the field-aware recipe but removes the largest raw character
+# block and caps the remaining vocabularies for a 512 MB serving target.
+FEATURE_PROFILES: dict[str, dict[str, dict[str, object]]] = {
+    "champion": {
+        "task_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 2, "max_features": 220_000},
+        "task_char_wb": {**_COMMON_TFIDF, "analyzer": "char_wb", "ngram_range": (2, 6), "min_df": 2, "max_features": 220_000},
+        "task_char_raw": {**_COMMON_TFIDF, "analyzer": "char", "ngram_range": (3, 6), "min_df": 2, "max_features": 250_000},
+        "title_word": {**_COMMON_TFIDF, "ngram_range": (1, 3), "min_df": 1, "max_features": 100_000},
+        "action_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 20_000},
+        "object_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 120_000},
+        "purpose_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 60_000},
+        "action_object_word": {**_COMMON_TFIDF, "ngram_range": (1, 1), "token_pattern": r"(?u)\b\w+\b", "min_df": 1, "max_features": 120_000},
+    },
+    "basic": {
+        "task_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 2, "max_features": 40_000},
+        "task_char_wb": {**_COMMON_TFIDF, "analyzer": "char_wb", "ngram_range": (3, 5), "min_df": 2, "max_features": 30_000},
+        "title_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 8_000},
+        "action_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 2_000},
+        "object_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 30_000},
+        "purpose_word": {**_COMMON_TFIDF, "ngram_range": (1, 2), "min_df": 1, "max_features": 15_000},
+        "action_object_word": {**_COMMON_TFIDF, "ngram_range": (1, 1), "token_pattern": r"(?u)\b\w+\b", "min_df": 1, "max_features": 15_000},
+    },
+}
+
+
 def _clean(values: Iterable[object]) -> pd.Series:
     return pd.Series(values, dtype="object").map(normalize_text)
 
@@ -30,6 +57,7 @@ class FieldAwareTfidfFeatures:
     """Word and character TF-IDF blocks with fixed, documented field weights."""
 
     vectorizers: dict[str, TfidfVectorizer] = field(default_factory=dict)
+    profile: str = "champion"
     weights: dict[str, float] = field(default_factory=lambda: {
         "task_word": 1.0,
         "task_char_wb": 0.65,
@@ -56,19 +84,11 @@ class FieldAwareTfidfFeatures:
             return _cross_action_object(frame)
         raise KeyError(name)
 
-    @staticmethod
-    def _specifications() -> dict[str, dict[str, object]]:
-        common = {"dtype": np.float32, "sublinear_tf": True, "strip_accents": "unicode"}
-        return {
-            "task_word": {**common, "ngram_range": (1, 2), "min_df": 2, "max_features": 220_000},
-            "task_char_wb": {**common, "analyzer": "char_wb", "ngram_range": (2, 6), "min_df": 2, "max_features": 220_000},
-            "task_char_raw": {**common, "analyzer": "char", "ngram_range": (3, 6), "min_df": 2, "max_features": 250_000},
-            "title_word": {**common, "ngram_range": (1, 3), "min_df": 1, "max_features": 100_000},
-            "action_word": {**common, "ngram_range": (1, 2), "min_df": 1, "max_features": 20_000},
-            "object_word": {**common, "ngram_range": (1, 2), "min_df": 1, "max_features": 120_000},
-            "purpose_word": {**common, "ngram_range": (1, 2), "min_df": 1, "max_features": 60_000},
-            "action_object_word": {**common, "ngram_range": (1, 1), "token_pattern": r"(?u)\b\w+\b", "min_df": 1, "max_features": 120_000},
-        }
+    def _specifications(self) -> dict[str, dict[str, object]]:
+        profile = getattr(self, "profile", "champion")
+        if profile not in FEATURE_PROFILES:
+            raise ValueError(f"Unknown feature profile: {profile}")
+        return FEATURE_PROFILES[profile]
 
     def fit_transform(self, frame: pd.DataFrame) -> sparse.csr_matrix:
         self.vectorizers = {}

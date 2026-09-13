@@ -23,7 +23,7 @@ artifact registry or storage location, not in ordinary Git history.
   "action": "prepare",
   "object": "monthly operational performance report",
   "purpose": "support management review",
-  "jobroleTitle": "Operations Analyst",
+  "jobroleTitle": "Operations Analyst"
 }
 ```
 
@@ -41,7 +41,7 @@ The response is always:
 {
   "predictedLabel": "E0 | E1 | E23",
   "reviewScore": 0.0,
-  "modelVersion": "gpt52-current-guidance-e0-e1-e23-v1"
+  "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
 }
 ```
 
@@ -49,12 +49,22 @@ The response is always:
 scores are close, the input has low lexical coverage against the training
 vocabulary, or the task is unusually short. It is not a probability.
 
+All `/v1/*` routes require `X-API-Key`. When a request cannot be processed,
+the service returns `{"error":{"code":"...","message":"..."}}`; invalid
+text values, including non-standard JSON `NaN` or `Infinity`, return `422`
+with a message that tells the caller to omit the optional field or send `null`.
+
 ## Operations
 
 - `GET /healthz` checks process liveness.
 - `GET /readyz` checks that the model artifact has loaded.
 - `GET /v1/model` returns the target and model version.
 - `POST /v1/predict:batch` supports up to 100 rows per request.
+
+The approved Basic-serving profile omits the high-cardinality raw character
+block and caps the remaining field vocabularies. Its sealed-test macro F1 is
+`0.8178`, compared with `0.8183` for the larger champion profile, while its
+Linux container inference footprint is approximately 272 MB after model load.
 
 Alert on readiness failures, high review-rate changes, sudden class-mix
 changes, elevated low-coverage requests and latency. Sample high-review and
