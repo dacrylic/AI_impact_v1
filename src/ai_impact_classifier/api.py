@@ -23,17 +23,28 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 class PredictionRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="forbid",
+        str_strip_whitespace=True,
+        json_schema_extra={
+            "description": "Provide either keytaskContent, or both action and object. purpose and jobroleTitle are optional.",
+            "examples": [
+                {"action": "analyse", "object": "financial records", "purpose": "prepare a monthly report", "jobroleTitle": "Financial analyst"},
+                {"keytaskContent": "analyse financial records to prepare a monthly report"},
+            ],
+        },
+    )
 
     keytask_content: Optional[str] = Field(
         alias="keytaskContent",
         max_length=10_000,
         default=None,
-        description="Optional already-composed AOP task. When omitted, the API joins supplied action, object, and purpose verbatim.",
+        description="Optional already-composed AOP task. Use this OR provide both action and object.",
     )
-    jobrole_title: Optional[str] = Field(default=None, alias="jobroleTitle", max_length=500)
-    action: Optional[str] = Field(default=None, max_length=2_000, description="Upstream AOP action. Required with object when keytaskContent is omitted.")
-    object_: Optional[str] = Field(default=None, alias="object", max_length=5_000, description="Upstream AOP object. Required with action when keytaskContent is omitted.")
+    jobrole_title: Optional[str] = Field(default=None, alias="jobroleTitle", max_length=500, description="Optional job role title; omitted when unavailable.")
+    action: Optional[str] = Field(default=None, max_length=2_000, description="Required with object when keytaskContent is omitted.")
+    object_: Optional[str] = Field(default=None, alias="object", max_length=5_000, description="Required with action when keytaskContent is omitted.")
     purpose: Optional[str] = Field(default=None, max_length=5_000, description="Optional upstream AOP component; never inferred by this API.")
 
 
@@ -46,9 +57,13 @@ class PredictionResponse(BaseModel):
 
 
 class BatchPredictionRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="forbid",
+        json_schema_extra={"description": "Required list of 1 to 100 prediction requests."},
+    )
 
-    items: list[PredictionRequest] = Field(min_length=1, max_length=100)
+    items: list[PredictionRequest] = Field(min_length=1, max_length=100, description="Required list of 1 to 100 prediction inputs.")
 
 
 class BatchPredictionResponse(BaseModel):
