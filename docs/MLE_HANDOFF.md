@@ -80,6 +80,19 @@ The serving runtime is pinned to scikit-learn `1.6.1` because serialized
 scikit-learn artifacts are version-sensitive. The release report's SHA-256 is
 the source of truth; do not silently substitute a different artifact.
 
+The sanitized release report is committed at
+`models/gpt52-current-basic-v2.training_report.json`. The full
+`sealed_test_rows.csv` remains outside Git because it contains source task and
+role fields. Store it in the approved restricted evaluation location and
+record its checksum in the release ticket. The committed
+`tests/fixtures/inference_regression.json` is the small non-sensitive parity
+fixture for CI and endpoint smoke tests.
+
+The teacher prompt lineage is preserved under
+`research/factorial-study/prompts/`. These prompts explain how the labels were
+generated historically and support future retraining governance; they are not
+loaded by the deployed classifier.
+
 ## SageMaker deployment
 
 Package the model only:

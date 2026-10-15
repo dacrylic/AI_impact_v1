@@ -25,7 +25,7 @@ future model versions and must produce a new versioned artifact after review.
 | `api.py` | Compatibility shim that exposes the canonical FastAPI app. |
 | `models/` | Approved `model.joblib` and checksum/metrics manifest. |
 | `scripts/` | Local inference and API demonstration helpers. |
-| `tests/` | API contract and validation tests. |
+| `tests/` | API contract tests and fixed release regression fixture. |
 | `deployment/heroku/` | Primary web API deployment instructions. |
 | `deployment/sagemaker/` | Separate enterprise endpoint deployment path. |
 | `research/factorial-study/` | Curated factorial-study documentation and approved presentation. |
@@ -70,6 +70,11 @@ clean clone can build and run the service.
 The release manifest records the artifact checksum, target labels, fitted row
 count, runtime version, and sealed-test metrics. Treat the checksum as the
 identity of the model release.
+
+The fixed smoke/parity cases in `tests/fixtures/inference_regression.json`
+are checked by the test suite against the committed artifact. They are not a
+replacement for the sealed test; they protect against accidental serving or
+serialization drift.
 
 ## Run the API
 

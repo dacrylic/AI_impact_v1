@@ -1,0 +1,124 @@
+{
+  "description": "Fixed smoke/parity cases for the approved release artifact.",
+  "modelSha256": "a88a0b2c6c8a09e25f9d6c51f1f1635827c84c9b46c0fe25d6f7f06aba64fd1c",
+  "cases": [
+    {
+      "action": "prepare",
+      "object": "monthly operational performance report",
+      "purpose": "support management review",
+      "jobroleTitle": "Operations Analyst",
+      "expected": {
+        "predictedLabel": "E23",
+        "reviewScore": 0.2465,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "action": "inspect",
+      "object": "industrial equipment",
+      "jobroleTitle": "Maintenance Technician",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.25,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "action": "draft",
+      "object": "customer correspondence",
+      "purpose": "resolve a service issue",
+      "jobroleTitle": "Customer Service Officer",
+      "expected": {
+        "predictedLabel": "E1",
+        "reviewScore": 0.0719,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "action": "coordinate",
+      "object": "an in-person team meeting",
+      "purpose": "align project stakeholders",
+      "jobroleTitle": "Project Manager",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.2897,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "action": "analyse",
+      "object": "financial records",
+      "purpose": "identify reporting anomalies",
+      "jobroleTitle": "Financial Analyst",
+      "expected": {
+        "predictedLabel": "E23",
+        "reviewScore": 0.0167,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "action": "operate",
+      "object": "heavy construction machinery",
+      "jobroleTitle": "Construction Worker",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.053,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "prepare monthly operational performance report",
+      "jobroleTitle": "Operations Analyst",
+      "expected": {
+        "predictedLabel": "E23",
+        "reviewScore": 0.1124,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "inspect industrial equipment",
+      "jobroleTitle": "Maintenance Technician",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.25,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "draft customer correspondence to resolve a service issue",
+      "jobroleTitle": "Customer Service Officer",
+      "expected": {
+        "predictedLabel": "E1",
+        "reviewScore": 0.3923,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "coordinate an in-person team meeting to align project stakeholders",
+      "jobroleTitle": "Project Manager",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.3307,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "analyse financial records to identify reporting anomalies",
+      "jobroleTitle": "Financial Analyst",
+      "expected": {
+        "predictedLabel": "E23",
+        "reviewScore": 0.0548,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    },
+    {
+      "keytaskContent": "operate heavy construction machinery",
+      "jobroleTitle": "Construction Worker",
+      "expected": {
+        "predictedLabel": "E0",
+        "reviewScore": 0.1391,
+        "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2"
+      }
+    }
+  ]
+}

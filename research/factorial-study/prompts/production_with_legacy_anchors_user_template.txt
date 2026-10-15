@@ -1,0 +1,30 @@
+Label the given task performed for the corresponding occupation with E0/E1/E2/E3.
+
+Here are some worked examples:
+
+Example 1:
+
+Occupation: HR Manager; Task: Coach line managers to manage involuntary exits
+
+Reasoning: The primary activity is live, face-to-face coaching — the worker must be personally present to guide managers through sensitive conversations. An LLM can help prepare talking points but cannot replace the interpersonal coaching itself.
+
+Label: E0
+
+Example 2:
+
+Occupation: HR Manager; Task: Develop communication materials for HR programmes
+
+Reasoning: The primary output is written content — brochures, emails, information kits. An LLM can draft, edit, and refine these materials directly, reducing the core work by well over half.
+
+Label: E1
+
+Example 3:
+
+Occupation: HR Manager; Task: Analyse financial and HR data to identify trends and develop forecasts
+
+Reasoning: The core work is data analysis and forecasting. An LLM alone cannot access the organisation's databases, but LLM-powered software with data retrieval and analytics capabilities could process the data, identify trends, and generate forecasts.
+
+Label: E2
+
+Now label this task:
+Occupation: {occupation}; Task: {task}

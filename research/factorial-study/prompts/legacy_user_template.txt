@@ -1,0 +1,3 @@
+Label the given task performed for the corresponding occupation with E0/E1/E2/E3.
+Occupation: {occupation}; Task: {task}
+Give your response in JSON format like this: {{'label': 'final_lable'}}

@@ -1,0 +1,60 @@
+# E Exposure Taxonomy
+Consider the most powerful OpenAI large language model (LLM). This model can complete many tasks that can be formulated as having text input and text output where the context for the input can be captured in 2000 words. The model also cannot draw up-to-date facts (those from <1 year ago) unless they are captured in the input.
+Assume you are a worker with an average level of expertise in your role trying to complete the given task. You have access to the LLM as well as any other existing software or computer hardware tools mentioned in the task. You also have access to any commonly available technical tools accessible via a laptop (e.g. a microphone, speakers, etc.). You do not have access to any other physical tools or materials.
+
+Please label the given task performed for the corresponding occupation according to the taxonomy below.
+
+# DECISION HEURISTICS
+Focus on the PRIMARY OUTPUT of the task, not the surrounding context. If the main deliverable is a document, analysis, presentation, report, or written communication — it is likely E1 or E2 even if the task also involves some stakeholder interaction or judgment.
+Almost every professional task involves some human judgment. The question is whether an LLM (or LLM-powered software) can reduce the CORE WORK by 50%, not whether the task has any human element at all.
+Ask yourself: what is the worker spending most of their time doing? If it is reading, writing, researching, analysing data, or synthesising information — that is automatable. If it is physically present with people, coaching face-to-face, facilitating live discussions, or building relationships through personal interaction — that is E0.
+
+## E0 – No exposure
+Label tasks E0 if direct access to the LLM through an interface like ChatGPT or the OpenAI playground cannot reduce the time it takes to complete this task with equivalent quality by half or more. If a task requires a high degree of human interaction (for example, in person demonstrations) then it should be classified as E0.
+E0 is reserved for tasks where the PRIMARY ACTIVITY is physical, interpersonal, or requires real-time human presence — such as coaching sessions, facilitating live meetings, in-person demonstrations, managing relationships, or providing emotional support.
+Do NOT classify a task as E0 simply because it involves some judgment or decision-making. If the core work involves writing, analysis, research, or information synthesis, it belongs in E1 or E2 even if judgment is also needed.
+
+## E1 – Direct exposure
+Label tasks E1 if direct access to the LLM through an interface like ChatGPT or the OpenAI playground alone can reduce the time it takes to complete the task with equivalent quality by at least half.
+SIGNAL: Tasks where the primary output is text are typically E1 — drafting documents, writing communications, creating recommendations, reviewing or advising in written form, preparing presentations, justifying proposals, or producing any written deliverable.
+This includes tasks that can be reduced to:
+- Writing and transforming text and code according to complex instructions
+- Providing edits to existing text or code following specifications
+- Writing code that can help perform a task that used to be done by hand
+- Translating text between languages
+- Summarizing medium-length documents
+- Providing feedback on documents
+- Answering questions about a document
+- Generating questions a user might want to ask about a document
+- Drafting contracts, policies, or legal documents from templates
+- Writing strategic recommendations or advisory memos
+
+## E2 – Exposure by LLM-powered applications
+Label tasks E2 if having access to the LLM alone may not reduce the time it takes to complete the task by at least half, but it is easy to imagine additional software that could be developed on top of the LLM that would reduce the time it takes to complete the task by half.
+SIGNAL: Tasks involving data analysis, research, compliance checking, trend monitoring, benchmarking, forecasting, or working with structured data are typically E2 — they need LLM + data retrieval, search, analytics, or specialised tools to be effective.
+This software may include capabilities such as:
+This includes tasks that can be reduced to:
+- Summarizing documents longer than 2000 words and answering questions about those documents
+- Retrieving up-to-date facts from the Internet and using those facts in combination with the LLM capabilities
+- Searching over an organization's existing knowledge, data, or documents and retrieving information
+- Connecting to databases, spreadsheets, or APIs to analyse structured data
+- Monitoring regulatory changes, industry trends, or compliance requirements
+- Building dashboards, reports, or visualisations from organisational data
+Examples of software built on top of the LLM that may help complete worker activities include:
+- Software built for a home goods company that quickly processes and summarizes their up-to-date internal data in customized ways to inform product or marketing decisions
+- Software that is able to suggest live responses for customer service agents speaking to customers in their company's customer service interface
+- Software built for legal purposes that can quickly aggregate and summarize all previous cases in a particular legal area and write legal research memos tailored to the law firm's needs
+- Software specifically designed for teachers that allows them to input a grading rubric and upload the text files of all student essays and have the software output a letter grade for each essay
+- Software that retrieves up-to-date facts from the internet and uses the capabilities of the LLM to output news summaries in different languages
+
+## E3 – Exposure given image capabilities
+Suppose you had access to both the LLM and a system that could view, caption, and create images. This system cannot take video media as inputs. This system cannot accurately retrieve very detailed information from image inputs, such as measurements of dimensions within an image. Label tasks as E3 if there is a significant reduction in the time it takes to complete the task given access to a LLM and these image capabilities:
+This includes tasks that can be reduced to:
+- Reading text from PDFs
+- Scanning images
+- Creating or editing digital images according to instructions
+
+# OUTPUT FORMAT
+Return your output in the given JSON format.
+
+Please think step-by-step.

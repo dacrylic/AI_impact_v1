@@ -9,6 +9,12 @@
   "classifier": "LinearSVC",
   "fitScope": "full_deduplicated_approved_dataset",
   "fittedRows": 76309,
+  "trainingReport": "gpt52-current-basic-v2.training_report.json",
+  "trainingReportSha256": "dc7fb851543c5fdd0a73a8b60e8308fe7b2be55e71490f563f48bc37708f53d1",
+  "sealedTestRows": {
+    "rows": 15410,
+    "sha256": "b6d63ac87e2963dbc1344a52c672f5524e8cb4fc3cad5c0cd1f8d3c60f742439"
+  },
   "sealedTest": {
     "accuracy": 0.8240103828682673,
     "macroF1": 0.8177878753795227,

@@ -1,0 +1,192 @@
+{
+  "model_version": "gpt52-current-guidance-e0-e1-e23-basic-v2",
+  "target_definition": "GPT-5.2 with approved current POC guidance; source E2 and E3 merged to E23",
+  "input_columns": [
+    "task",
+    "jobrole_title",
+    "action",
+    "object",
+    "purpose"
+  ],
+  "primary_api_input": [
+    "action",
+    "object",
+    "purpose (optional)"
+  ],
+  "compatibility_api_input": [
+    "keytaskContent"
+  ],
+  "optional_api_inputs": [
+    "jobroleTitle"
+  ],
+  "excluded_columns": [
+    "reasoning_key",
+    "truncated_reason",
+    "score",
+    "band",
+    "sector_title",
+    "ssoc_code",
+    "jobrole_id",
+    "cwfkt_id",
+    "label"
+  ],
+  "preparation": {
+    "source_rows": 77469,
+    "valid_rows": 77469,
+    "conflicting_full_inputs_excluded": 0,
+    "duplicate_full_inputs_collapsed": 1160,
+    "model_rows": 76309
+  },
+  "split": {
+    "seed": 2026,
+    "test_fold": 2,
+    "train_rows": 48288,
+    "validation_rows": 12611,
+    "test_rows": 15410,
+    "strict_leakage_passed": true,
+    "leakage_checks": {
+      "shared_roles_train_validation": 0,
+      "shared_full_inputs_train_validation": 0,
+      "shared_roles_train_test": 0,
+      "shared_full_inputs_train_test": 0,
+      "shared_roles_validation_test": 0,
+      "shared_full_inputs_validation_test": 0
+    }
+  },
+  "fixed_hyperparameters": {
+    "classifier": "LinearSVC",
+    "c": 0.2,
+    "class_weight": null,
+    "feature_profile": "basic",
+    "feature_recipe": {
+      "task_word": 1.0,
+      "task_char_wb": 0.65,
+      "task_char_raw": 0.45,
+      "title_word": 0.5,
+      "action_word": 0.9,
+      "object_word": 0.8,
+      "purpose_word": 0.5,
+      "action_object_word": 0.7
+    }
+  },
+  "validation_metrics": {
+    "accuracy": 0.8321306795654587,
+    "macro_f1": 0.8257684552670246,
+    "weighted_f1": 0.8315689603040848,
+    "confusion_matrix": [
+      [
+        2882,
+        135,
+        371
+      ],
+      [
+        185,
+        2455,
+        617
+      ],
+      [
+        330,
+        479,
+        5157
+      ]
+    ],
+    "classification_report": {
+      "E0": {
+        "precision": 0.8483956432146011,
+        "recall": 0.8506493506493507,
+        "f1-score": 0.849521002210759,
+        "support": 3388.0
+      },
+      "E1": {
+        "precision": 0.7999348321928967,
+        "recall": 0.7537611298741173,
+        "f1-score": 0.7761618716408473,
+        "support": 3257.0
+      },
+      "E23": {
+        "precision": 0.8392188771358828,
+        "recall": 0.8643982567884679,
+        "f1-score": 0.8516224919494674,
+        "support": 5966.0
+      },
+      "accuracy": 0.8321306795654587,
+      "macro avg": {
+        "precision": 0.8291831175144603,
+        "recall": 0.8229362457706452,
+        "f1-score": 0.8257684552670246,
+        "support": 12611.0
+      },
+      "weighted avg": {
+        "precision": 0.8315384988229331,
+        "recall": 0.8321306795654587,
+        "f1-score": 0.8315689603040848,
+        "support": 12611.0
+      }
+    }
+  },
+  "sealed_test_metrics": {
+    "accuracy": 0.8240103828682673,
+    "macro_f1": 0.8177878753795227,
+    "weighted_f1": 0.8231822049705138,
+    "confusion_matrix": [
+      [
+        3519,
+        176,
+        471
+      ],
+      [
+        199,
+        2936,
+        892
+      ],
+      [
+        373,
+        601,
+        6243
+      ]
+    ],
+    "classification_report": {
+      "E0": {
+        "precision": 0.8601808848692252,
+        "recall": 0.8446951512241959,
+        "f1-score": 0.8523676880222841,
+        "support": 4166.0
+      },
+      "E1": {
+        "precision": 0.790735254511177,
+        "recall": 0.7290787186491184,
+        "f1-score": 0.758656330749354,
+        "support": 4027.0
+      },
+      "E23": {
+        "precision": 0.8207993689192743,
+        "recall": 0.8650408757101289,
+        "f1-score": 0.8423396073669298,
+        "support": 7217.0
+      },
+      "accuracy": 0.8240103828682673,
+      "macro avg": {
+        "precision": 0.8239051694332256,
+        "recall": 0.8129382485278144,
+        "f1-score": 0.8177878753795227,
+        "support": 15410.0
+      },
+      "weighted avg": {
+        "precision": 0.8235894537165545,
+        "recall": 0.8240103828682673,
+        "f1-score": 0.8231822049705138,
+        "support": 15410.0
+      }
+    }
+  },
+  "artifact": {
+    "path": "model.joblib",
+    "sha256": "a88a0b2c6c8a09e25f9d6c51f1f1635827c84c9b46c0fe25d6f7f06aba64fd1c",
+    "fit_scope": "full_deduplicated_approved_dataset",
+    "fitted_rows": 76309
+  },
+  "source_data": {
+    "path": "<approved-data-source>",
+    "sha256": "0e80ed8649cc22fd0059a8d3c3590277dc010b880b81e0f21eb96e7d482f4b1b"
+  }
+}
