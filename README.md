@@ -12,17 +12,24 @@ This repository deliberately separates production code from data-science
 evidence. Read [the experiments index](docs/EXPERIMENTS.md) for the evidence
 behind the selected policy.
 
+For the initial deployment, use the frozen artifact already committed in
+`models/`. Do not retrain as part of deployment. The training command is for
+future model versions and must produce a new versioned artifact after review.
+
 ## Repository layout
 
 | Location | Purpose |
 | --- | --- |
 | `src/ai_impact_classifier/production/` | Approved target contract, training and artifact-backed inference. |
 | `src/ai_impact_classifier/api.py` | FastAPI application and camelCase public schema. |
+| `api.py` | Compatibility shim that exposes the canonical FastAPI app. |
+| `models/` | Approved `model.joblib` and checksum/metrics manifest. |
+| `scripts/` | Local inference and API demonstration helpers. |
+| `tests/` | API contract and validation tests. |
 | `deployment/heroku/` | Primary web API deployment instructions. |
 | `deployment/sagemaker/` | Separate enterprise endpoint deployment path. |
 | `research/factorial-study/` | Curated factorial-study documentation and approved presentation. |
 | `src/ai_impact_classifier/experiments/` | Historical/reproducible experimentation scripts. Not serving code. |
-| `models/` | Approved CPU-serving release artifact and release manifest. |
 | `artifacts/` | Local training outputs and sealed-test evidence. Ignored from Git. |
 
 ## Local setup
@@ -59,6 +66,10 @@ Review `training_report.json` before promoting a newly trained artifact to
 `models/gpt52-current-basic-v2.joblib` or publishing it to an approved
 artifact store. The currently approved release artifact is committed so a
 clean clone can build and run the service.
+
+The release manifest records the artifact checksum, target labels, fitted row
+count, runtime version, and sealed-test metrics. Treat the checksum as the
+identity of the model release.
 
 ## Run the API
 
@@ -112,6 +123,7 @@ text fields must be omitted or sent as JSON `null`, never `NaN` or `Infinity`.
 - [Heroku deployment](deployment/heroku/README.md)
 - [SageMaker deployment](deployment/sagemaker/README.md)
 - [Release and API guidance](docs/DEPLOYMENT.md)
+- [MLE handoff](docs/MLE_HANDOFF.md)
 
 ## Guardrails
 

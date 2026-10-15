@@ -9,12 +9,16 @@ keeps endpoint lifecycle inside the organisation's ML stack.
 The archive must contain `model.joblib` at its root:
 
 ```bash
-rm -rf /tmp/ai-impact-model
-mkdir -p /tmp/ai-impact-model
-cp models/gpt52-current-basic-v2.joblib /tmp/ai-impact-model/model.joblib
-tar -czf /tmp/ai-impact-model.tar.gz -C /tmp/ai-impact-model model.joblib
+.venv/bin/python deployment/sagemaker/package_model.py \
+  --model models/gpt52-current-basic-v2.joblib \
+  --manifest models/gpt52-current-basic-v2.manifest.json \
+  --output /tmp/ai-impact-model.tar.gz
 aws s3 cp /tmp/ai-impact-model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
 ```
+
+The packaging utility validates the release checksum before creating the
+archive. It includes only the model binary; no source dataset, API key,
+training report, or research material is uploaded.
 
 ## Deploy
 
@@ -32,6 +36,11 @@ copy source files into the model archive. The endpoint accepts the same JSON
 shape as FastAPI's `/v1/predict` endpoint. Use SageMaker Model Registry,
 endpoint data capture, and an approved container image policy when integrating
 this path into the organisational platform.
+
+SageMaker requests use the same input alternatives as FastAPI. Send either
+`keytaskContent` plus optional `jobroleTitle`, or `action` and `object` plus
+optional `purpose` and `jobroleTitle`. Do not send both alternatives together.
+The response contains `predictedLabel`, `reviewScore`, and `modelVersion`.
 
 The artifact was trained with scikit-learn `1.6.1`. The default SageMaker
 container tag is retained for compatibility with the current launcher, but the

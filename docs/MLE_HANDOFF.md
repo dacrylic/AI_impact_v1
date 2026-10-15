@@ -26,6 +26,10 @@ pre-composed `keytaskContent` is accepted as a compatibility alternative.
 4. Use [`deployment/sagemaker/README.md`](../deployment/sagemaker/README.md)
    for the separate endpoint path.
 
+The repository is already on the `main` branch with the approved model
+artifact. The initial SageMaker deployment should package and deploy that
+artifact. It should not retrain the model.
+
 ## Reproduce training
 
 The approved labelled CSV is intentionally outside Git. Obtain it through the
@@ -76,17 +80,16 @@ The serving runtime is pinned to scikit-learn `1.6.1` because serialized
 scikit-learn artifacts are version-sensitive. The release report's SHA-256 is
 the source of truth; do not silently substitute a different artifact.
 
-## SageMaker port
+## SageMaker deployment
 
 Package the model only:
 
 ```bash
-rm -rf /tmp/ai-impact-model
-mkdir -p /tmp/ai-impact-model
-cp models/gpt52-current-basic-v2.joblib /tmp/ai-impact-model/model.joblib
-tar -czf /tmp/ai-impact-model.tar.gz -C /tmp/ai-impact-model model.joblib
+.venv/bin/python deployment/sagemaker/package_model.py \
+  --model models/gpt52-current-basic-v2.joblib \
+  --manifest models/gpt52-current-basic-v2.manifest.json \
+  --output /tmp/ai-impact-model.tar.gz
 aws s3 cp /tmp/ai-impact-model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
-cd /path/to/AI_impact_v1
 python -m pip install -e '.[sagemaker]'
 python deployment/sagemaker/deploy.py \
   --model-data s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz \
@@ -99,6 +102,12 @@ to unpickle the model. It does not upload the training data or research
 artifacts. Before using an approved organisational image, confirm its
 scikit-learn version can load the release artifact; otherwise rebuild and
 revalidate inside that image.
+
+The SageMaker endpoint accepts either `keytaskContent` plus optional
+`jobroleTitle`, or `action` and `object` plus optional `purpose` and
+`jobroleTitle`. Do not send both input alternatives. The output is the same
+three-field contract as FastAPI: `predictedLabel`, `reviewScore`, and
+`modelVersion`.
 
 The SageMaker handler returns the same three fields as the interim API:
 
@@ -120,6 +129,19 @@ The SageMaker handler returns the same three fields as the interim API:
 - add contract, load, and parity tests in the organisational CI/CD pipeline;
 - register the model version and release evidence;
 - keep the Heroku route as the temporary P2 consumption path until cutover.
+
+## Deployment acceptance checks
+
+Before cutover, MLE should record:
+
+- S3/model-registry URI and the artifact SHA-256;
+- approved SageMaker framework/container version;
+- endpoint health and readiness result;
+- parity against at least 12 known local predictions;
+- batch or concurrency test results in the target environment;
+- rollback target and endpoint configuration;
+- confirmation that request logs do not contain API keys, source labels, or
+  restricted identifiers.
 
 No API key is required for SageMaker by this repository handler; authentication
 and authorisation must be supplied by the organisation's gateway/IAM layer.
