@@ -40,8 +40,8 @@ input strings. A frozen MPNet blend reached 0.8250 but introduced roughly an
 order of magnitude more inference latency. The sparse classifier is therefore
 the release candidate for the live API.
 
-The final release build recreated that configuration: **0.8183 macro F1**,
-**0.8236 weighted F1**, and **0.8244 accuracy** on the 15,410-row sealed test.
+The final Basic release build recorded **0.8178 macro F1**, **0.8232 weighted
+F1**, and **0.8240 accuracy** on the 15,410-row sealed test.
 It deduplicated 1,160 same-label complete inputs, excluded no conflicting
 complete inputs, and recorded zero shared roles or complete inputs across the
 split. The release report captures the source-data hash and artifact checksum.
@@ -51,9 +51,15 @@ Run it with:
 ```bash
 .venv/bin/python -m ai_impact_classifier.production.train \
   --input "/path/to/tasks_reasoning_scores 2.csv" \
-  --output-dir artifacts/releases/gpt52-current-field-aware-v1 \
+  --output-dir artifacts/releases/gpt52-current-basic-v2 \
+  --feature-profile basic \
+  --model-version gpt52-current-guidance-e0-e1-e23-basic-v2 \
   --refit-full
 ```
+
+The currently approved serving binary is committed at
+`models/gpt52-current-basic-v2.joblib`; its checksum and sealed-test summary
+are recorded in `models/gpt52-current-basic-v2.manifest.json`.
 
 ## Research archive
 

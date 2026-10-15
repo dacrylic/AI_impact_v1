@@ -1,4 +1,10 @@
-"""Train the final sparse classifier and OOF-calibrate production review flags."""
+"""Legacy experimental bundle trainer.
+
+The current deployable artifact is produced by ``production.train`` and is
+stored at ``models/gpt52-current-basic-v2.joblib``. This module remains only
+for historical review experiments that use the older review-calibration
+bundle.
+"""
 
 from __future__ import annotations
 
