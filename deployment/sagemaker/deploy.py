@@ -14,7 +14,11 @@ def main() -> None:
     parser.add_argument("--endpoint-name", required=True)
     parser.add_argument("--instance-type", default="ml.m5.large")
     parser.add_argument("--region")
-    parser.add_argument("--framework-version", default="1.5-1", help="Approved SageMaker scikit-learn container tag; verify it matches the artifact runtime.")
+    parser.add_argument(
+        "--framework-version",
+        required=True,
+        help="Approved SageMaker scikit-learn container tag with scikit-learn 1.6.1 compatibility.",
+    )
     args = parser.parse_args()
 
     import sagemaker

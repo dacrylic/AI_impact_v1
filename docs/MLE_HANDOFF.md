@@ -94,14 +94,17 @@ python -m pip install -e '.[sagemaker]'
 python deployment/sagemaker/deploy.py \
   --model-data s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz \
   --role <sagemaker-execution-role-arn> \
-  --endpoint-name ai-impact-gpt52-current-basic-v2
+  --endpoint-name ai-impact-gpt52-current-basic-v2 \
+  --framework-version <approved-1.6.1-compatible-tag>
 ```
 
 The deployment launcher stages the inference handler and the package needed
 to unpickle the model. It does not upload the training data or research
-artifacts. Before using an approved organisational image, confirm its
-scikit-learn version can load the release artifact; otherwise rebuild and
-revalidate inside that image.
+artifacts. The artifact was serialized with scikit-learn `1.6.1`; the
+launcher therefore requires an explicit framework tag and must not be run
+against an unverified `1.5.x` image. If the approved organisational image is
+not compatible, build an approved image from the pinned project dependencies,
+then revalidate inside that image.
 
 The SageMaker endpoint accepts either `keytaskContent` plus optional
 `jobroleTitle`, or `action` and `object` plus optional `purpose` and

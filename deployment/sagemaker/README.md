@@ -27,7 +27,8 @@ python -m pip install -e '.[sagemaker]'
 python deployment/sagemaker/deploy.py \
   --model-data s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz \
   --role <sagemaker-execution-role-arn> \
-  --endpoint-name ai-impact-gpt52-current-basic-v2
+  --endpoint-name ai-impact-gpt52-current-basic-v2 \
+  --framework-version <approved-1.6.1-compatible-tag>
 ```
 
 The launcher stages `deployment/sagemaker/inference.py` together with the
@@ -42,9 +43,11 @@ SageMaker requests use the same input alternatives as FastAPI. Send either
 optional `purpose` and `jobroleTitle`. Do not send both alternatives together.
 The response contains `predictedLabel`, `reviewScore`, and `modelVersion`.
 
-The artifact was trained with scikit-learn `1.6.1`. The default SageMaker
-container tag is retained for compatibility with the current launcher, but the
-platform owner must confirm the approved image's scikit-learn version before
-deployment. If the image cannot load the artifact without warnings or version
-drift, rebuild the release artifact inside the approved image and rerun the
-sealed-test checks before promotion.
+The artifact was trained and serialized with scikit-learn `1.6.1`. There is no
+default framework version in the launcher: the deployment command requires an
+explicit approved container tag. The platform owner must confirm that the
+selected image contains scikit-learn `1.6.1` compatibility before deployment.
+If the approved image cannot load the artifact without version warnings or
+drift, build an approved custom image with the pinned dependencies in
+`pyproject.toml`, then rerun the sealed-test and parity checks before
+promotion. Do not silently deploy the artifact in a `1.5.x` runtime.

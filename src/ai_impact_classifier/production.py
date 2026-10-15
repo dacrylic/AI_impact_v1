@@ -1,4 +1,9 @@
-"""Single-model production prediction and review flags for E0/E1/E23."""
+"""Legacy review-calibration bundle used by historical experiments.
+
+This module is not the active serving implementation. The deployed API uses
+``ai_impact_classifier.production.predictor.ProductionPredictor`` and returns
+the three-field schema documented in ``docs/PRODUCTION_OUTPUT_SCHEMA.md``.
+"""
 
 from __future__ import annotations
 
