@@ -18,7 +18,7 @@ from .production.contracts import compose_task_from_aop
 from .production.predictor import ModelNotReadyError, ProductionPredictor
 
 
-DEFAULT_MODEL_PATH = "artifacts/current/model.joblib"
+DEFAULT_MODEL_PATH = "models/gpt52-current-basic-v2.joblib"
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 

@@ -9,9 +9,11 @@ keeps endpoint lifecycle inside the organisation's ML stack.
 The archive must contain `model.joblib` at its root:
 
 ```bash
-cd artifacts/releases/gpt52-current-basic-v2
-tar -czf model.tar.gz model.joblib
-aws s3 cp model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
+rm -rf /tmp/ai-impact-model
+mkdir -p /tmp/ai-impact-model
+cp models/gpt52-current-basic-v2.joblib /tmp/ai-impact-model/model.joblib
+tar -czf /tmp/ai-impact-model.tar.gz -C /tmp/ai-impact-model model.joblib
+aws s3 cp /tmp/ai-impact-model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
 ```
 
 ## Deploy

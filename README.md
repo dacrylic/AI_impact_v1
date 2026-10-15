@@ -22,7 +22,8 @@ behind the selected policy.
 | `deployment/sagemaker/` | Separate enterprise endpoint deployment path. |
 | `research/factorial-study/` | Curated factorial-study documentation and approved presentation. |
 | `src/ai_impact_classifier/experiments/` | Historical/reproducible experimentation scripts. Not serving code. |
-| `artifacts/` | Local or release-managed model artifacts. Ignored from Git. |
+| `models/` | Approved CPU-serving release artifact and release manifest. |
+| `artifacts/` | Local training outputs and sealed-test evidence. Ignored from Git. |
 
 ## Local setup
 
@@ -54,14 +55,15 @@ is unanimous; contradictory duplicates are excluded rather than assigned an
 arbitrary label. The selected model is evaluated on the sealed test, then
 refit on all remaining approved rows only when `--refit-full` is supplied.
 
-Review `training_report.json` before promoting `model.joblib` to
-`artifacts/current/model.joblib` or publishing it to an approved artifact
-store.
+Review `training_report.json` before promoting a newly trained artifact to
+`models/gpt52-current-basic-v2.joblib` or publishing it to an approved
+artifact store. The currently approved release artifact is committed so a
+clean clone can build and run the service.
 
 ## Run the API
 
 ```bash
-export AI_IMPACT_MODEL_PATH=artifacts/releases/gpt52-current-basic-v2/model.joblib
+export AI_IMPACT_MODEL_PATH=models/gpt52-current-basic-v2.joblib
 export AI_IMPACT_API_KEY='choose-a-long-random-secret'
 uvicorn ai_impact_classifier.api:app --reload
 ```

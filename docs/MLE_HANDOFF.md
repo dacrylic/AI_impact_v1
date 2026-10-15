@@ -9,7 +9,7 @@ interim scoring model:
 - input: AOP (`action` and `object`, with optional `purpose`) and optional
   `jobroleTitle`;
 - model: frozen field-aware TF-IDF features plus a CPU `LinearSVC` classifier;
-- serving artifact: `artifacts/releases/gpt52-current-basic-v2/model.joblib`;
+- serving artifact: `models/gpt52-current-basic-v2.joblib`;
 - primary interim route: FastAPI on Heroku;
 - organisational production route: SageMaker, using the separate
   `deployment/sagemaker/` path.
@@ -67,7 +67,7 @@ deduplicated rows for serving.
 ```bash
 python -m pytest -q
 python scripts/infer_local.py \
-  --model artifacts/releases/gpt52-current-basic-v2/model.joblib \
+  --model models/gpt52-current-basic-v2.joblib \
   --action "prepare" \
   --object "monthly operational performance report"
 ```
@@ -81,9 +81,11 @@ the source of truth; do not silently substitute a different artifact.
 Package the model only:
 
 ```bash
-cd artifacts/releases/gpt52-current-basic-v2
-tar -czf model.tar.gz model.joblib
-aws s3 cp model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
+rm -rf /tmp/ai-impact-model
+mkdir -p /tmp/ai-impact-model
+cp models/gpt52-current-basic-v2.joblib /tmp/ai-impact-model/model.joblib
+tar -czf /tmp/ai-impact-model.tar.gz -C /tmp/ai-impact-model model.joblib
+aws s3 cp /tmp/ai-impact-model.tar.gz s3://<approved-bucket>/ai-impact/gpt52-current-basic-v2/model.tar.gz
 cd /path/to/AI_impact_v1
 python -m pip install -e '.[sagemaker]'
 python deployment/sagemaker/deploy.py \

@@ -65,8 +65,10 @@ Sealed-test class metrics:
 
 The generated `training_report.json` contains the confusion matrix, source
 data SHA-256, artifact SHA-256, split seed, and complete fixed feature recipe.
-The binary artifact is intentionally not committed to Git; promote it through
-the release process described in the deployment guide.
+The approved binary artifact is committed at
+`models/gpt52-current-basic-v2.joblib` for reproducible deployment. Promote
+the same checksum to the organisation's model registry through the release
+process described in the deployment guide.
 
 ## Intended Use And Limits
 

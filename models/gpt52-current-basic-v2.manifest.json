@@ -1,0 +1,23 @@
+{
+  "modelVersion": "gpt52-current-guidance-e0-e1-e23-basic-v2",
+  "artifact": "gpt52-current-basic-v2.joblib",
+  "sha256": "a88a0b2c6c8a09e25f9d6c51f1f1635827c84c9b46c0fe25d6f7f06aba64fd1c",
+  "sizeBytes": 4234580,
+  "targetLabels": ["E0", "E1", "E23"],
+  "labelPolicy": "GPT-5.2 with approved current POC guidance; source E2 and E3 merged to E23",
+  "featureProfile": "basic",
+  "classifier": "LinearSVC",
+  "fitScope": "full_deduplicated_approved_dataset",
+  "fittedRows": 76309,
+  "sealedTest": {
+    "accuracy": 0.8240103828682673,
+    "macroF1": 0.8177878753795227,
+    "weightedF1": 0.8231822049705138,
+    "rows": 15410,
+    "strictLeakageChecksPassed": true
+  },
+  "runtime": {
+    "python": ">=3.9",
+    "scikitLearn": "1.6.1"
+  }
+}

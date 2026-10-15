@@ -11,8 +11,10 @@ Before promoting a model artifact, record the following in the release ticket:
 5. model artifact checksum and `modelVersion`;
 6. responsible approver and release date.
 
-The `model.joblib` artifact is a release binary. Keep it in the approved
-artifact registry or storage location, not in ordinary Git history.
+The approved serving artifact is committed at
+`models/gpt52-current-basic-v2.joblib` so a clean clone is deployable. The
+same binary should also be copied to the approved model registry or storage
+location before organisational deployment.
 
 ## HTTP contract
 

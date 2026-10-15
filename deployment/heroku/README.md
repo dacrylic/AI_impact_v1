@@ -16,10 +16,10 @@ It uses the exact same `model.joblib` artifact as local and SageMaker serving.
      --refit-full
    ```
 
-2. Verify `training_report.json`, then copy the approved artifact to
-   `artifacts/current/model.joblib` in the controlled release workspace. Do
-   not commit the binary. The Docker build includes that local file even though
-   Git ignores it.
+2. Verify `training_report.json`, then replace
+   `models/gpt52-current-basic-v2.joblib` only through the approved release
+   process. The currently approved binary is committed so a clean clone can
+   build the image reproducibly.
 3. Set `AI_IMPACT_MODEL_PATH` only when the artifact is mounted elsewhere.
 
 ## Deploy
@@ -30,7 +30,6 @@ deploying an API with no model binary:
 
 ```bash
 heroku create <app-name>
-cp artifacts/releases/gpt52-current-basic-v2/model.joblib artifacts/current/model.joblib
 heroku stack:set container --app <app-name>
 heroku container:release web --app <app-name>
 ```
@@ -74,9 +73,8 @@ heroku config:set AI_IMPACT_API_KEY="$(openssl rand -hex 32)" --app <app-name>
 ```
 
 After deployment, call `/readyz` before directing traffic to the service. The
-root `Procfile` remains available for a platform-managed artifact mount or a
-separate build-time artifact retrieval process; it is not the default GitHub
-deployment route because the model binary is deliberately excluded from Git.
+root `Procfile` remains available for a platform-managed process startup. The
+Dockerfile uses the committed canonical release artifact by default.
 
 For a production service, run more than one Uvicorn worker only after checking
 memory usage: each worker loads a copy of the sparse model artifact. Use
@@ -86,7 +84,7 @@ memory usage: each worker loads a copy of the sparse model artifact. Use
 
 | Variable | Purpose |
 | --- | --- |
-| `AI_IMPACT_MODEL_PATH` | Optional artifact location; default is `artifacts/current/model.joblib`. |
+| `AI_IMPACT_MODEL_PATH` | Optional artifact location; default is `models/gpt52-current-basic-v2.joblib`. |
 | `AI_IMPACT_API_KEY` | Required secret for all `/v1/*` endpoints; callers send it as `X-API-Key`. |
 | `WEB_CONCURRENCY` | Reserved for a future multi-worker release; the current image intentionally starts one worker. |
 

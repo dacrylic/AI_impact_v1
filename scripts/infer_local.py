@@ -13,7 +13,7 @@ from ai_impact_classifier.production.predictor import ProductionPredictor
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default=os.getenv("AI_IMPACT_MODEL_PATH", "artifacts/current/model.joblib"))
+    parser.add_argument("--model", default=os.getenv("AI_IMPACT_MODEL_PATH", "models/gpt52-current-basic-v2.joblib"))
     parser.add_argument("--keytask-content", help="Already-composed task text.")
     parser.add_argument("--action")
     parser.add_argument("--object", dest="object_")

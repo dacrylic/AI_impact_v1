@@ -18,7 +18,7 @@ from ai_impact_classifier.production import ReviewCalibration, ReviewThresholds,
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train production sparse model bundle with OOF review calibration.")
     parser.add_argument("--input", required=True)
-    parser.add_argument("--output", default="models/e0_e1_e23_sparse_svc.joblib")
+    parser.add_argument("--output", default="artifacts/legacy/e0_e1_e23_sparse_svc.joblib")
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
 
